@@ -56,13 +56,13 @@ Decode chuỗi base64 sau đó ghi vào file, chúng ta sẽ thu được 1 chư
 
 Mở HashProgram-base64.exe trong dnspy
 
-![Screenshot](../screenshots/simple-reverse-1.png?raw=true "Screenshot")
+![Screenshot](/screenshots/simple-reverse-1.png?raw=true "Screenshot")
 
 Chương trình này đã bị obfuscate, để dễ đọc hơn chúng ta nên deobfuscate trước bằng công cụ [de4dot](https://github.com/0xd4d/de4dot) thu được file mới tạm gọi là HashProgram-base64-cleaned.exe
 
 Sử dụng tính năng debug của dnspy, đặt breakpoint ngay tại hàm so sánh 2 chuỗi
 
-![Screenshot](../screenshots/simple-reverse-2.png?raw=true "Screenshot")
+![Screenshot](/screenshots/simple-reverse-2.png?raw=true "Screenshot")
 
 Step In vào hàm `s_method0`
 
