@@ -52,7 +52,7 @@ namespace LoaderBase64
   }
 }
 ```
-Decode chuỗi base64 sau đó ghi vào file, chúng ta sẽ thu được 1 chương trình C# khác tạm gọi là HashProgram-base64.exe
+Decode chuỗi base64 sau đó ghi vào file, chúng ta sẽ thu được 1 chương trình C# khác tạm gọi là **HashProgram-base64.exe**
 
 Mở **HashProgram-base64.exe** bằng dnspy
 
