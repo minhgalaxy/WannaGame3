@@ -54,11 +54,11 @@ namespace LoaderBase64
 ```
 Decode chuỗi base64 sau đó ghi vào file, chúng ta sẽ thu được 1 chương trình C# khác tạm gọi là HashProgram-base64.exe
 
-Mở `HashProgram-base64.exe` bằng dnspy
+Mở **HashProgram-base64.exe** bằng dnspy
 
 ![Screenshot](/screenshots/simple-reverse-1.png?raw=true "Screenshot")
 
-Chương trình này đã bị obfuscate, để dễ đọc hơn chúng ta nên deobfuscate trước bằng công cụ [de4dot](https://github.com/0xd4d/de4dot) thu được file mới tạm gọi là `HashProgram-base64-cleaned.exe`
+Chương trình này đã bị obfuscate, để dễ đọc hơn chúng ta nên deobfuscate trước bằng công cụ [de4dot](https://github.com/0xd4d/de4dot) thu được file mới tạm gọi là **HashProgram-base64-cleaned.exe**
 
 Sử dụng tính năng debug của dnspy, đặt breakpoint ngay tại hàm so sánh 2 chuỗi
 
@@ -80,6 +80,8 @@ public static string smethod_0(string string_0, string string_1)
 Hàm này nhận 2 tham số đầu vào `string_0` là `SaY_s0mE_tH1nG`, `string_1` là nội dung người dùng nhập. Sau đó `string_1` sẽ được xor với key `string_0`.
 
 Quay lại hàm Main, chuỗi input sau khi xor với key sẽ được Compare với chuỗi được tạo từ mảng `bytes`, suy ra chỉ cần xor mảng `bytes` với key `SaY_s0mE_tH1nG` sẽ ra flag `flag{D0nT_H4v3_tH1nG_t0_s7y}`
+
+[Script](RE/simple-reverse.py)
 
 # AES
 
