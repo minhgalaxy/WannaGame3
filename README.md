@@ -103,10 +103,9 @@ Cài file **helloworld.apk** lên máy ảo android(LDPlayer, Genymotion, Bluest
 
 ![Screenshot](/screenshots/review-source-1.png?raw=true "Screenshot")
 
-Sử dụng công cụ [JADx](https://github.com/skylot/jadx) để decompile source của app này
+Sử dụng công cụ [JADx](https://github.com/skylot/jadx) để decompile source của app này. Đầu tiên, xem file **AndroidManifest.xml** để xác định Activity nào sẽ được chạy đầu tiên khi mở app lên.
 
-Xem file **AndroidManifest.xml** để xác định Activity nào sẽ được chạy đầu tiên khi mở app lên
-
+File **AndroidManifest.xml**:
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="10000" android:versionName="1.0.0" android:hardwareAccelerated="true" package="com.example.hello">
@@ -123,7 +122,9 @@ Xem file **AndroidManifest.xml** để xác định Activity nào sẽ được 
     </application>
 </manifest>
 ```
-Ta có thể thấy main activity của app là `com.example.hello.MainActivity`. Giữ phím `Ctrl` và click vào `com.example.hello.MainActivity` tool sẽ decompile và mở file MainActivity.java lên. Đây là source của file **MainActivity.java**
+Ta có thể thấy main activity của app là `com.example.hello.MainActivity`. Giữ phím `Ctrl` và click vào `com.example.hello.MainActivity` tool sẽ decompile và mở file **MainActivity.java** lên. 
+
+Source code **MainActivity.java**
 
 ```java
 package com.example.hello;
@@ -146,7 +147,8 @@ public class MainActivity extends CordovaActivity {
 class `MainActivity` kế thừa class `CordovaActivity`, đây là app viết bằng [Cordova](https://cordova.apache.org/) (một dạng framework cross-platform). Loại app này có source là các file js, html, css như lập trình web và thường mấy file này được lưu ở trong thư mục `assets`.
 
 Mở file `assets/www/js/app.js` xem sao, nhưng có vẻ file đã bị mã hóa nên chúng ta chỉ thấy 1 chuỗi base64 thôi. Để ý trong package `com.tkyaji.cordova` có 1 file tên là `DecryptResource.java`, có thể đây chính là class dùng để giải mã resource trước khi load lên webview :))
-Nội dung file `DecryptResource.java`
+
+Source code **DecryptResource.java**:
 
 ```java
 package com.tkyaji.cordova;
