@@ -60,7 +60,7 @@ Mở **HashProgram-base64.exe** bằng dnspy
 
 Chương trình này đã bị obfuscate, để dễ đọc hơn chúng ta nên deobfuscate trước bằng công cụ [de4dot](https://github.com/0xd4d/de4dot) thu được file mới tạm gọi là **HashProgram-base64-cleaned.exe**
 
-Sử dụng tính năng debug của dnspy, đặt breakpoint ngay tại hàm so sánh 2 chuỗi
+Sử dụng tính năng debug của dnspy, đặt breakpoint ngay tại hàm so sánh 2 chuỗi và bắt đầu debug:
 
 ![Screenshot](/screenshots/simple-reverse-2.png?raw=true "Screenshot")
 
