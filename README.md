@@ -13,7 +13,7 @@
 [Link tải challenge](RE/HashProgram.exe)
 
 Dùng lệnh `file HashProgram.exe` ta thấy chương trình được viết bằng C#: 
-```bash
+```
 HashProgram.exe: PE32 executable (console) Intel 80386 Mono/.Net assembly, for MS Windows
 ```
 Sử dụng công cụ [dnspy](https://github.com/0xd4d/dnSpy/releases) để reverse.
