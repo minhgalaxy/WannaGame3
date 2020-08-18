@@ -95,6 +95,147 @@ Script [chall-solve.py](Crypto/chall-solve.py) (nguồn [https://gist.github.com
 
 # Source review
 
+> this is android app
+
+Link tải challenge [helloworld.apk](WEB/helloworld.apk)
+
+Cài file **helloworld.apk** lên máy ảo android(LDPlayer, Genymotion, Bluestack...) và chạy ứng dụng lên
+
+![Screenshot](/screenshots/review-source-1.png?raw=true "Screenshot")
+
+Sử dụng công cụ [JADx](https://github.com/skylot/jadx) để decompile source của app này
+
+Xem file **AndroidManifest.xml** để xác định Activity nào sẽ được chạy đầu tiên khi mở app lên
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="10000" android:versionName="1.0.0" android:hardwareAccelerated="true" package="com.example.hello">
+    <uses-sdk android:minSdkVersion="19" android:targetSdkVersion="27"/>
+    <supports-screens android:anyDensity="true" android:smallScreens="true" android:normalScreens="true" android:largeScreens="true" android:resizeable="true" android:xlargeScreens="true"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <application android:label="@string/app_name" android:icon="@mipmap/icon" android:debuggable="true" android:hardwareAccelerated="true" android:supportsRtl="true">
+        <activity android:theme="@style/Theme.DeviceDefault.NoActionBar" android:label="@string/activity_name" android:name="com.example.hello.MainActivity" android:launchMode="singleTop" android:configChanges="locale|keyboard|keyboardHidden|orientation|screenSize" android:windowSoftInputMode="adjustResize">
+            <intent-filter android:label="@string/launcher_name">
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
+```
+Ta có thể thấy main activity của app là `com.example.hello.MainActivity`. Giữ phím `Ctrl` và click vào `com.example.hello.MainActivity` tool sẽ decompile và mở file MainActivity.java lên. Đây là source của file **MainActivity.java**
+
+```java
+package com.example.hello;
+
+import android.os.Bundle;
+import org.apache.cordova.CordovaActivity;
+
+public class MainActivity extends CordovaActivity {
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Bundle extras = getIntent().getExtras();
+        if (extras != null && extras.getBoolean("cdvStartInBackground", false)) {
+            moveTaskToBack(true);
+        }
+        loadUrl(this.launchUrl);
+    }
+}
+```
+
+class `MainActivity` kế thừa class `CordovaActivity`, đây là app viết bằng [Cordova](https://cordova.apache.org/) (một dạng framework cross-platform). Loại app này có source là các file js, html, css như lập trình web và thường mấy file này được lưu ở trong thư mục `assets`.
+
+Mở file `assets/www/js/app.js` xem sao, nhưng có vẻ file đã bị mã hóa nên chúng ta chỉ thấy 1 chuỗi base64 thôi. Để ý trong package `com.tkyaji.cordova` có 1 file tên là `DecryptResource.java`, có thể đây chính là class dùng để giải mã resource trước khi load lên webview :))
+Nội dung file `DecryptResource.java`
+
+```java
+package com.tkyaji.cordova;
+
+import android.net.Uri;
+import android.util.Base64;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.regex.Pattern;
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.CordovaResourceApi;
+import org.apache.cordova.LOG;
+
+public class DecryptResource extends CordovaPlugin {
+    private static final String CRYPT_IV = "WIU8k71fDAspR8Ie";
+    private static final String CRYPT_KEY = "nFwsAczxEZAs1QPF1lfA5eOWPg2TgvhF";
+    private static final String[] EXCLUDE_FILES = new String[0];
+    private static final String[] INCLUDE_FILES = {"\\.(htm|html|js|css)$"};
+    private static final String TAG = "DecryptResource";
+
+    public Uri remapUri(Uri uri) {
+        if (uri.toString().indexOf("/+++/") > -1) {
+            return toPluginUri(uri);
+        }
+        return uri;
+    }
+
+    public CordovaResourceApi.OpenForReadResult handleOpenForRead(Uri uri) throws IOException {
+        String uriStr = fromPluginUri(uri).toString().replace("/+++/", "/").split("\\?")[0];
+        CordovaResourceApi.OpenForReadResult readResult = this.webView.getResourceApi().openForRead(Uri.parse(uriStr), true);
+        if (!isCryptFiles(uriStr)) {
+            return readResult;
+        }
+        BufferedReader br = new BufferedReader(new InputStreamReader(readResult.inputStream));
+        StringBuilder strb = new StringBuilder();
+        while (true) {
+            String line = br.readLine();
+            if (line == null) {
+                break;
+            }
+            strb.append(line);
+        }
+        br.close();
+        byte[] bytes = Base64.decode(strb.toString(), 0);
+        LOG.d(TAG, "decrypt: " + uriStr);
+        ByteArrayInputStream byteInputStream = null;
+        try {
+            SecretKeySpec secretKeySpec = new SecretKeySpec(CRYPT_KEY.getBytes("UTF-8"), "AES");
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            cipher.init(2, secretKeySpec, new IvParameterSpec(CRYPT_IV.getBytes("UTF-8")));
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            bos.write(cipher.doFinal(bytes));
+            byteInputStream = new ByteArrayInputStream(bos.toByteArray());
+        } catch (Exception ex) {
+            LOG.e(TAG, ex.getMessage());
+        }
+        return new CordovaResourceApi.OpenForReadResult(readResult.uri, byteInputStream, readResult.mimeType, readResult.length, readResult.assetFd);
+    }
+
+    private boolean isCryptFiles(String uri) {
+        String checkPath = uri.replace("file:///android_asset/www/", "");
+        if (hasMatch(checkPath, INCLUDE_FILES) && !hasMatch(checkPath, EXCLUDE_FILES)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean hasMatch(String text, String[] regexArr) {
+        for (String regex : regexArr) {
+            if (Pattern.compile(regex).matcher(text).find()) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+```
+Vậy là resource đã bị mã hóa bằng thuật toán `AES/CBC/PKCS5Padding`, có key: `nFwsAczxEZAs1QPF1lfA5eOWPg2TgvhF`, iv: `WIU8k71fDAspR8Ie`. Sử dụng công cụ [CyberChef](https://gchq.github.io/CyberChef/) để giải mã file `app.js` ta được:
+
+![Screenshot](/screenshots/review-source-2.png?raw=true "Screenshot")
+
+Secret: `h3ll0_h0mi3s_nic3_t0_m33t_y0u_!`
+
 # Do I need to pay for professional versions?
 
 # Extract cookies from Google Chrome browser
