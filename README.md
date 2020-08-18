@@ -10,7 +10,7 @@
 
 # Simple Reverse
 
-[Link tải challenge](RE/HashProgram.exe)
+Link tải challenge [HashProgram.exe](RE/HashProgram.exe)
 
 Dùng lệnh `file HashProgram.exe` ta thấy chương trình được viết bằng C#: 
 ```
@@ -84,6 +84,12 @@ Quay lại hàm Main, chuỗi input sau khi xor với key sẽ được Compare 
 [Script](RE/simple-reverse.py)
 
 # AES
+
+> CRT mode, huhh?????????
+
+Link tải challenge [chall.py](Crypto/chall.py)
+
+
 
 # Source review
 
