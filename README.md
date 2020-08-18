@@ -99,9 +99,11 @@ Script [chall-solve.py](Crypto/chall-solve.py) (nguồn [https://gist.github.com
 
 Link tải challenge [helloworld.apk](WEB/helloworld.apk)
 
-Cài file **helloworld.apk** lên máy ảo android(LDPlayer, Genymotion, Bluestack...) và chạy ứng dụng lên
+Cài file **helloworld.apk** lên máy ảo android (LDPlayer, Genymotion, Bluestack...) và chạy ứng dụng lên xem sao
 
 ![Screenshot](/screenshots/review-source-1.png?raw=true "Screenshot")
+
+Ứng dụng có 1 ô để nhập tên, nhấn nút `Say hi!` sẽ xuất hiện dòng chữ `HI <tên>!`. Decompile app xem source code như nào đã 😂😂😂
 
 Sử dụng công cụ [JADx](https://github.com/skylot/jadx) để decompile source của app này. Đầu tiên, xem file **AndroidManifest.xml** để xác định Activity nào sẽ được chạy đầu tiên khi mở app lên.
 
@@ -236,7 +238,7 @@ Vậy là resource đã bị mã hóa bằng thuật toán `AES/CBC/PKCS5Padding
 
 ![Screenshot](/screenshots/review-source-2.png?raw=true "Screenshot")
 
-Secret: `h3ll0_h0mi3s_nic3_t0_m33t_y0u_!`
+Secret: `h3ll0_h0mi3s_nic3_t0_m33t_y0u_!` 😊
 
 # Do I need to pay for professional versions?
 
