@@ -89,7 +89,6 @@ Quay lại hàm Main, chuỗi input sau khi xor với key sẽ được Compare 
 
 Link tải challenge [chall.py](Crypto/chall.py)
 
-Bài này là dạng AES-CTR mã hóa 2 plain-text sử dụng lại nonce và iv
 AES mode CTR nếu sử dụng lại nonce và iv để mã hóa 2 plaintext khác nhau sẽ bị tấn công **chosen-plaintext**
 
 Script [chall-solve.py](Crypto/chall-solve.py) (nguồn [https://gist.github.com/craSH/2969666](https://gist.github.com/craSH/2969666))
