@@ -26,30 +26,30 @@ using System.Reflection;
 
 namespace LoaderBase64
 {
-	// Token: 0x02000002 RID: 2
-	internal class Program
-	{
-		// Token: 0x06000001 RID: 1 RVA: 0x00002050 File Offset: 0x00000250
-		private static void Main(string[] args)
-		{
-			MethodInfo entryPoint = Assembly.Load(Convert.FromBase64String("TVqQAAMAAAAEAAAA//8AALgAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAg...AAAAAAAAAAAAAAAAAAA=")).EntryPoint;
-			if (entryPoint == null)
-			{
-				return;
-			}
-			object[] array;
-			if (entryPoint.GetParameters().Length != 0)
-			{
-				(array = new object[1])[0] = new string[0];
-			}
-			else
-			{
-				array = null;
-			}
-			object[] parameters = array;
-			entryPoint.Invoke(null, parameters);
-		}
-	}
+  // Token: 0x02000002 RID: 2
+  internal class Program
+  {
+    // Token: 0x06000001 RID: 1 RVA: 0x00002050 File Offset: 0x00000250
+    private static void Main(string[] args)
+    {
+      MethodInfo entryPoint = Assembly.Load(Convert.FromBase64String("TVqQAAMAAAAEAAAA//8AALgAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAg...AAAAAAAAAAAAAAAAAAA=")).EntryPoint;
+      if (entryPoint == null)
+      {
+        return;
+      }
+      object[] array;
+      if (entryPoint.GetParameters().Length != 0)
+      {
+        (array = new object[1])[0] = new string[0];
+      }
+      else
+      {
+        array = null;
+      }
+      object[] parameters = array;
+      entryPoint.Invoke(null, parameters);
+    }
+  }
 }
 ```
 Decode chuỗi base64 sau đó ghi vào file, chúng ta sẽ thu được 1 chương trình C# khác tạm gọi là HashProgram-base64.exe
