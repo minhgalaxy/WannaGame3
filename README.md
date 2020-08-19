@@ -250,6 +250,7 @@ Link tải challenge [CrackTool.zip](RE/CrackTool.zip)
 
 > I know that Alice found the flag, so I hacked her PC for you:
 > - File: alice.zip
+
 > Flag: wannagame\{ \*\*sha1(secret) \*\*\}
 
 # Could you win this game?
