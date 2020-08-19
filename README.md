@@ -295,6 +295,8 @@ Secret: `this_challenge_is_created_by_danhph`
 
 # Could you win this game?
 
+Link tải challenge [game.zip](RE/game.zip)
+
 Hàm mainLoop:
 ```C++
 int __cdecl mainLoop(void (*a1)(void))
