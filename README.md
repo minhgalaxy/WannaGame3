@@ -253,6 +253,46 @@ Link tải challenge [CrackTool.zip](RE/CrackTool.zip)
 
 > Flag: wannagame\{ \*\*sha1(secret) \*\*\}
 
+Link tải challenge [Alice.zip](MISC/Alice.zip)
+
+File `Cookies` được lưu trong file `AppData\Local\Microsoft\Edge\User Data\Default` chứa tất cả cookie của trình duyệt, tuy nhiên nếu mở file này bằng `SQLite Browser` thì chúng ta sẽ thấy rằng `value` của cookie đã bị mã hóa (có thể tham khảo thêm ở [đây](https://stackoverflow.com/questions/22532870/encrypted-cookies-in-chrome)).
+
+Có một công cụ hỗ trợ chúng ta giải mã cookie đó là [Mimikatz](https://github.com/gentilkiwi/mimikatz).
+
+Một số link tham khảo cách sử dụng Mimikatz để unprotect data:
+
+- https://www.ired.team/offensive-security/credential-access-and-credential-dumping/reading-dpapi-encrypted-secrets-with-mimikatz-and-c++
+- https://www.onlinehashcrack.com/how-to-procdump-mimikatz-credentials.php
+- https://miloserdov.org/?p=4205
+
+Mở mimikatz lên, sau đó chạy lần lượt các lệnh như sau:
+- `sekurlsa::minidump D:\CTF\WannaGame3\Alice\lsass.dmp`
+- `sekurlsa::logonPasswords`
+- `dpapi::masterkey /in:D:\CTF\WannaGame3\Alice\AppData\Roaming\Microsoft\Protect\S-1-5-21-3734529546-3570587082-1750843553-1001\b9c69d2f-bc92-4f94-89f8-c0bc63f5816c`
+- `dpapi::chrome /in:"D:\CTF\WannaGame3\Alice\AppData\Local\Microsoft\Edge\User Data\Default\Cookies" /unprotect`
+
+Và đây là kết quả:
+```
+mimikatz # dpapi::chrome /in:"D:\CTF\WannaGame3\Alice\AppData\Local\Microsoft\Edge\User Data\Default\Cookies" /unprotect
+> Encrypted Key found in local state file
+> Encrypted Key seems to be protected by DPAPI
+ * using CryptUnprotectData API
+ * volatile cache: GUID:{b9820292-310b-4df7-8ff2-1a857a8f1ea5};KeyHash:ed634a59b7bb4cca37009449d3ccacec9f073b6f;Key:available
+> AES Key is: d68479b16670c12e9b18aa1579c6e79d81c3368625274b8df49a76d8eb9b2434
+
+...
+
+Host  : cnsc.uit.edu.vn ( / )
+Name  : _Flag
+Dates : 29/7/2020 13:41:59 -> 1/12/2020 07:00:00
+ * using BCrypt with AES-256-GCM
+Cookie: WannaGame{this_challenge_is_created_by_danhph}
+
+...
+
+```
+Secret: `this_challenge_is_created_by_danhph`
+
 # Could you win this game?
 
 # AHIHI Descrypt
