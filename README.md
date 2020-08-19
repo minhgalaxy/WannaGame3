@@ -411,7 +411,7 @@ var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
 ctx.fillStyle = "#000000";
 for(var i = 0; i < arr.length; i++){
-	var x = arr[i][0];
+    var x = arr[i][0];
     var y = arr[i][1];
     ctx.fillRect(x, y, 10, 10);
 }
