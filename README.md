@@ -247,10 +247,10 @@ Link tải challenge [CrackTool.zip](RE/CrackTool.zip)
 
 
 # Extract cookies from Google Chrome browser
-## Abc
-### abc
-###### 5lajsdlf
 
+> I know that Alice found the flag, so I hacked her PC for you:
+> - File: alice.zip
+> Flag: wannagame\{ \*\*sha1(secret) \*\*\}
 
 # Could you win this game?
 
