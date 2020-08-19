@@ -422,4 +422,6 @@ Kết quả:
 
 ![Screenshot](/screenshots/snake-game.png?raw=true "Screenshot")
 
+Secret: `sn4ke_g4me_!!?`
+
 # AHIHI Descrypt
