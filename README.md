@@ -451,10 +451,10 @@ Tới đây có thể dùng `z3` để giải cho 4 case trong hàm `check_part`
 
 Chương trình này viết bằng C++, các bạn uncomment từng case để dò lần lượt case 0, 1, 2, 3:
 ```C++
-#include<stdio.h>
-#include<iostream>
-#include<string.h>
-#include<string>
+#include <stdio.h>
+#include <iostream>
+#include <string.h>
+#include <string>
 #include <iostream>
 #include <fstream>
 #include "aes.h"
@@ -658,7 +658,176 @@ Theo quy tắc nhân chúng ta sẽ có tất cả 1 x 9 x 55 x 478 = 236610 lic
 
 Thật may là tác giả sử dụng thuật toán AES ở đây https://github.com/kokke/tiny-AES-c, và thuật toán này này yêu cầu key có 16 bytes mà thôi, nghĩa là chúng ta chỉ cần brute force 2 part đầu là được 😃😃😃 (vì hex(<8 bytes>) = 16 bytes).
 
+Chương trình brute force viết bằng C++:
+```C++
+#include <stdio.h>
+#include <iostream>
+#include <string.h>
+#include <string>
+#include <iostream>
+#include <fstream>
+#include "aes.h"
 
+
+using namespace std;
+
+
+int* mapping(char* a1, int a2, int a3)
+{
+    int v3; // er12
+    int v4; // ebx
+    int result[5]; // rax
+    __int64 j; // r8
+    int v7; // edx
+    __int64 i; // rsi
+    unsigned __int64 mem_len; // rcx
+    signed int pos; // er12
+    int new_val; // esi
+    unsigned __int64 v13; // [rsp+68h] [rbp-30h]
+
+    v3 = a3;
+    v4 = a2;
+    const char* mem = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!\"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r\x0b\x0c";
+    j = a2;
+    v7 = v3 + a2;
+    while (v7 > (signed int)j)
+    {
+        i = 0LL;
+        mem_len = strlen(mem);
+        while (1)
+        {
+            pos = i;
+            if (i == mem_len)
+                break;
+            if (mem[i] == a1[j])
+            {
+                new_val = i - mem_len;
+                if (pos <= 50)
+                    new_val = pos;
+                result[(signed int)j - v4] = new_val;
+                break;
+            }
+            ++i;
+        }
+        ++j;
+    }
+    return result;
+}
+
+int convert(int n) {
+    const char* mem = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!\"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r\x0b\x0c";
+    if (n < 0)
+        n += 100;
+    return mem[n];
+}
+
+int magic(float a1)
+{
+    double v1; // xmm0_8
+
+    if (a1 < 0.0)
+    {
+        v1 = a1 - 0.5;
+        return (unsigned int)(signed int)v1;
+    }
+    if (a1 > 0.0)
+    {
+        v1 = a1 + 0.5;
+        return (unsigned int)(signed int)v1;
+    }
+    return 0LL;
+}
+
+
+bool test_decrypt_cbc(std::string data, uint8_t* key)
+{
+
+    uint8_t iv[] = "5u8jShQx4Zu0cVV8";
+
+    uint8_t* memblock = (uint8_t*)data.c_str();
+    streampos size = data.length();
+    struct AES_ctx ctx;
+    AES_init_ctx_iv(&ctx, key, iv);
+    AES_CBC_decrypt_buffer(&ctx, memblock, size);
+
+    /**/
+    if (memblock[0] == 0x89 && memblock[1] == 0x50 && memblock[2] == 0x4e) {
+        return 1;
+    }
+    return 0;
+}
+
+std::string string_to_hex(const std::string& input)
+{
+    static const char hex_digits[] = "0123456789abcdef";
+
+    std::string output;
+    output.reserve(input.length() * 2);
+    for (unsigned char c : input)
+    {
+        output.push_back(hex_digits[c >> 4]);
+        output.push_back(hex_digits[c & 15]);
+    }
+    return output;
+}
+
+
+int main() {
+    string arr[] = { 
+        "d1^",
+        "e1[",
+        "e1\\",
+        "f1?",
+        "g1<",
+        "g1=",
+        "h1:"
+    };
+    streampos size;
+    uint8_t* memblock = NULL;
+
+    ifstream file("db2", ios::in | ios::binary | ios::ate);
+    if (file.is_open())
+    {
+        size = file.tellg();
+        memblock = new uint8_t[size];
+        file.seekg(0, ios::beg);
+        file.read((char*)memblock, size);
+        file.close();
+
+        std::cout << "file size: " << size << endl;
+    }
+    else std::cout << "Unable to open file";
+
+    const char* mem = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!\"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r\x0b\x0c";
+    char key[] = "220\x0b\x00\x00\x00\x00";
+
+
+    for (int i = 0; i < strlen(mem); i++)
+    {
+        char c = mem[i];
+        key[4] = c;
+        for (int j = 0; j < 7; j++)
+        {
+            key[5] = arr[j][0];
+            key[6] = arr[j][1];
+            key[7] = arr[j][2];
+            string data = string((char*)memblock);
+            string keyhex = string_to_hex(key);
+            cout << "Testing key " << keyhex << endl;
+            if (test_decrypt_cbc(data, (uint8_t*)keyhex.c_str())) {
+                cout << "Found: " << keyhex << endl;
+                return 0;
+            }
+        }
+    }
+    return 0;
+}
+```
+Found key: `3232300b3b66313f`
+
+File **flag.png** đã giải mã:
+
+![Screenshot](/screenshots/flag.png?raw=true "Screenshot")
 
 # Extract cookies from Google Chrome browser
 
@@ -841,3 +1010,7 @@ Canvas thu được chứa secret:
 Secret: `sn4ke_g4me_!!?`
 
 # AHIHI Descrypt
+
+Link tải challenge [main.exe](RE/main.exe)
+
+Script: [ahihi-descript-solve.py](RE/ahihi-descript-solve.py)
