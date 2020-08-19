@@ -244,6 +244,420 @@ Secret: `h3ll0_h0mi3s_nic3_t0_m33t_y0u_!` 😊
 
 Link tải challenge [CrackTool.zip](RE/CrackTool.zip)
 
+Hàm `checkLicense`:
+
+```C++
+__int64 __fastcall checkLicense(char *a1, __int64 a2, __int64 a3)
+{
+  unsigned int i; // ebx
+  wchar_t *hex_decoded; // rbp
+  __int64 result; // rax
+  int v6; // er10
+  int *v7; // rax
+  signed int v8; // er9
+
+  i = 0;
+  hex_decoded = (wchar_t *)hexdecode(a1, a2, a3);
+  while ( 1 )
+  {
+    if ( (unsigned int)checksum(hex_decoded, i, 5) )
+    {
+      if ( (unsigned int)checksum(hex_decoded, 5 * i, 1) )
+      {
+        v7 = mapping(hex_decoded, v6, 5LL);
+        result = check_part(i, *v7, v7[1], v7[2], v7[3], v8);
+        if ( !(_DWORD)result )
+          break;
+      }
+    }
+    if ( ++i == 5 )
+      return 1LL;
+  }
+  return result;
+}
+```
+
+Đầu tiên input nhập vào sẽ được decode hex, vậy tức là input phải được encode hex trước khi nhập.
+
+Hàm `checkLicense` có gọi hàm `checksum`, nhưng mình không care luôn (chả biết giải như này có đúng ý tác giả không nữa 😆😆😆). Chúng ta sẽ chỉ cần quan tâm 2 hàm là `mapping` và `check_part`.
+
+Hàm `mapping`:
+```C++
+int *__fastcall mapping(wchar_t *a1, int a2, __int64 a3)
+{
+  int v3; // er12
+  int v4; // ebx
+  int *result; // rax
+  __int64 j; // r8
+  int v7; // edx
+  __int64 i; // rsi
+  unsigned __int64 mem_len; // rcx
+  signed int v10; // er12
+  int v11; // esi
+  char mem[101]; // [rsp+3h] [rbp-95h]
+  unsigned __int64 v13; // [rsp+68h] [rbp-30h]
+
+  v3 = a3;
+  v4 = a2;
+  v13 = __readfsqword(0x28u);
+  qmemcpy(mem, &unk_4B0259, sizeof(mem));
+  result = (int *)malloc(4LL * (signed int)a3, (char *)&unk_4B0259 + 101, a3);
+  j = a2;
+  v7 = v3 + a2;
+  while ( v7 > (signed int)j )
+  {
+    i = 0LL;
+    mem_len = strlen(mem);
+    while ( 1 )
+    {
+      v10 = i;
+      if ( i == mem_len )
+        break;
+      if ( mem[i] == a1[j] )
+      {
+        v11 = i - mem_len;
+        if ( v10 <= 50 )
+          v11 = v10;
+        result[(signed int)j - v4] = v11;
+        break;
+      }
+      ++i;
+    }
+    ++j;
+  }
+  return result;
+}
+```
+
+`unk_4B0259` là vùng nhớ chứa dữ liệu là:
+```python
+'0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r\x0b\x0c'
+```
+Hàm này sẽ chạy từng ký tự trong input, tìm `index` trong chuỗi `unk_4B0259`. Nếu `index <= 50` thì cập nhật lại `input[j] = index` ngược lại thì `input[j] = index - 50`. Kết quả là sẽ biến chuỗi input ban đầu thành mảng chứa các số từ -49 đến 50.
+
+Chuỗi input được chia thành 4 phần, mỗi phần 4 ký tự. Mỗi phần đều được map lại bằng hàm `mapping`, sau đó kiểm tra tính hợp lệ bằng hàm `check_part`.
+
+Hàm `check_part`:
+```C++
+__int64 __fastcall check_part(__int64 a1, signed int a2, signed int a3, signed int a4, signed int a5, signed int a6)
+{
+  float v6; // xmm2_4
+  float v7; // xmm1_4
+  float v8; // xmm0_4
+  float v9; // xmm3_4
+  float v10; // xmm2_4
+  float v11; // xmm3_4
+  float v12; // xmm4_4
+  float v13; // xmm5_4
+  float v14; // xmm4_4
+  float v15; // xmm5_4
+  float v16; // xmm4_4
+  float v17; // xmm5_4
+  bool v18; // zf
+  float v19; // xmm3_4
+  float v20; // xmm2_4
+  float v21; // xmm4_4
+  float v22; // xmm5_4
+  float v23; // xmm4_4
+  float v24; // xmm5_4
+  float v25; // xmm4_4
+  float v26; // xmm5_4
+  float v27; // xmm3_4
+  float v28; // xmm2_4
+  float v29; // xmm5_4
+  float v30; // xmm6_4
+  float v31; // xmm4_4
+  float v32; // xmm4_4
+  float v33; // xmm5_4
+
+  switch ( (_DWORD)a1 )
+  {
+    case 0:
+      v6 = (float)a4;
+      v7 = (float)a2;
+      v8 = (float)a3;
+      v9 = (float)a5;
+      if ( (float)((float)((float)((float)a2 + (float)a3) + (float)(v6 + v6)) + (float)((float)a5 * 3.0)) == -2.0
+        && (float)((float)((float)((float)(v8 + v8) + (float)(v7 + v7)) + (float)(v6 * 3.0)) + (float)(5.0 * v9)) == -2.0
+        && (float)((float)((float)((float)(v7 * 3.0) - v8) + (float)(v6 + v6)) + v9) == 2.0 )
+      {
+        LODWORD(a1) = 0;
+        if ( (float)((float)((float)((float)(v8 * 6.0) + (float)(v7 + v7)) + (float)(v6 * 6.0)) + (float)(v9 * 13.0)) == -10.0 )
+          LODWORD(a1) = 1;
+      }
+      break;
+    case 1:
+      v10 = (float)a3 / 5.0;
+      v11 = (float)a5 / 5.0;
+      LODWORD(a1) = 0;
+      if ( (unsigned int)magic((float)((float)((float)((float)a2 / 5.0) - v10) + (float)((float)a4 / 5.0)) + v11) == 1
+        && (unsigned int)magic((float)((float)((float)(v12 + v12) + v10) + v13) + (float)(v11 * 3.0)) == 8
+        && (unsigned int)magic((float)((float)(-3.0 * v14) + (float)(v10 + v10)) - v15) == -5 )
+      {
+        v18 = (unsigned int)magic(
+                              (float)((float)((float)(4.0 * v10) + (float)(v16 * 4.0)) + (float)(v17 * 3.0))
+                            + (float)(v16 * 4.0)) == 14;
+        goto LABEL_20;
+      }
+      break;
+    case 2:
+      v19 = (float)a2 / 5.0;
+      v20 = (float)a3 / 5.0;
+      LODWORD(a1) = 0;
+      if ( (unsigned int)magic((float)((float)(v19 + v20) + (float)((float)a4 / 5.0)) + (float)((float)a5 / 5.0)) == 5
+        && (unsigned int)magic((float)((float)((float)(v20 + v20) + (float)(v19 + v19)) - v21) + (float)(v22 * 3.0)) == 10
+        && (unsigned int)magic((float)((float)((float)(v19 * -2.0) - v20) + v23) + v24) == 3 )
+      {
+        v18 = (unsigned int)magic(
+                              (float)((float)((float)(v20 * 3.0) + (float)(v19 + v19)) + (float)(v25 * 4.0))
+                            + (float)(v26 + v26)) == 11;
+        goto LABEL_20;
+      }
+      break;
+    case 3:
+      v27 = (float)a2 / 10.0;
+      v28 = (float)a3 / 10.0;
+      LODWORD(a1) = magic((float)((float)((float)(v28 + v28) + v27) - (float)((float)a4 / 10.0)) + (float)((float)a5 / 10.0));
+      if ( (_DWORD)a1 )
+        goto LABEL_22;
+      v30 = v29 * 3.0;
+      if ( (unsigned int)magic((float)((float)(v27 + v27) - (float)(3.0 * v28)) + (float)(v29 * 3.0)) == 3
+        && (unsigned int)magic((float)((float)((float)(-4.0 * v27) + v28) + v30) + (float)(v31 + v31)) == -1 )
+      {
+        v18 = (unsigned int)magic((float)((float)(v27 + v28) + v33) + v32) == 2;
+LABEL_20:
+        LODWORD(a1) = v18;
+      }
+      break;
+    case 4:
+      LODWORD(a1) = 1;
+      break;
+    default:
+LABEL_22:
+      LODWORD(a1) = 0;
+      break;
+  }
+  return (unsigned int)a1;
+}
+```
+
+
+
+Hàm này có sử dụng thanh ghi `xmm` để lưu float, nên để xem giá bị thanh ghi lúc debug các bạn cần bật bảng `XMM Registers` lên bằng cách chọn **Debugger -> Debugger windows -> XMM registers**. Hàm `magic` thực chất là hàm `floor` trong c++.
+
+Muốn license đúng thì cả 4 lần gọi hàm `check_part` này đều phải trả về `1`.
+
+Tới đây có thể dùng `z3` để giải cho 4 case trong hàm `check_part`, hoặc có thể dụng cách cục súc hơn nhưng cũng hiệu quả không kém trong trường hợp này là `Brute force` 4 ký tự, trường hợp nào thỏa thì in ra 😂😂😂.
+
+Chương trình này viết bằng C++, các bạn uncomment từng case để dò lần lượt case 0, 1, 2, 3:
+```C++
+#include<stdio.h>
+#include<iostream>
+#include<string.h>
+#include<string>
+#include <iostream>
+#include <fstream>
+#include "aes.h"
+
+
+using namespace std;
+
+
+int* mapping(char* a1, int a2, int a3)
+{
+    int v3; // er12
+    int v4; // ebx
+    int result[5]; // rax
+    __int64 j; // r8
+    int v7; // edx
+    __int64 i; // rsi
+    unsigned __int64 mem_len; // rcx
+    signed int pos; // er12
+    int new_val; // esi
+    unsigned __int64 v13; // [rsp+68h] [rbp-30h]
+
+    v3 = a3;
+    v4 = a2;
+    const char* mem = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!\"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r\x0b\x0c";
+    j = a2;
+    v7 = v3 + a2;
+    while (v7 > (signed int)j)
+    {
+        i = 0LL;
+        mem_len = strlen(mem);
+        while (1)
+        {
+            pos = i;
+            if (i == mem_len)
+                break;
+            if (mem[i] == a1[j])
+            {
+                new_val = i - mem_len;
+                if (pos <= 50)
+                    new_val = pos;
+                result[(signed int)j - v4] = new_val;
+                break;
+            }
+            ++i;
+        }
+        ++j;
+    }
+    return result;
+}
+
+int convert(int n) {
+	//Ngược lại của hàm mapping
+    const char* mem = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!\"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r\x0b\x0c";
+    if (n < 0)
+        n += 100;
+    return mem[n];
+}
+
+int magic(float a1)
+{
+    double v1; // xmm0_8
+    if (a1 < 0.0)
+    {
+        v1 = a1 - 0.5;
+        return (unsigned int)(signed int)v1;
+    }
+    if (a1 > 0.0)
+    {
+        v1 = a1 + 0.5;
+        return (unsigned int)(signed int)v1;
+    }
+    return 0LL;
+}
+
+
+int main() {
+
+    for (int a2 = -49; a2 < 51; a2++)
+    {
+        for (int a3 = -49; a3 < 51; a3++)
+        {
+            for (int a4 = -49; a4 < 51; a4++)
+            {
+                for (int a5 = -49; a5 < 51; a5++)
+                {
+                    //case 0
+
+                    float v6 = (float)a4;
+                    float v7 = (float)a2;
+                    float v8 = (float)a3;
+                    float v9 = (float)a5;
+                    if ((float)((float)((float)((float)a2 + (float)a3) + (float)(v6 + v6)) + (float)((float)a5 * 3.0)) == -2.0
+                        && (float)((float)((float)((float)(v8 + v8) + (float)(v7 + v7)) + (float)(v6 * 3.0)) + (float)(5.0 * v9)) == -2.0
+                        && (float)((float)((float)((float)(v7 * 3.0) - v8) + (float)(v6 + v6)) + v9) == 2.0)
+                    {
+                        if ((float)((float)((float)((float)(v8 * 6.0) + (float)(v7 + v7)) + (float)(v6 * 6.0)) + (float)(v9 * 13.0)) == -10.0)
+                        {
+                            printf("%02x%02x%02x%02x\n", convert(a2), convert(a3), convert(a4), convert(a5));
+                        }
+                    }
+
+
+
+                    //case 1
+
+                    /*float v10 = (float)a3 / 5.0;
+                    float v11 = (float)a5 / 5.0;
+                    float v12 = (float)a2 / 5.0;
+                    float v13 = (float)a4 / 5.0;
+                    float v14 = v12;
+                    float v15 = v13;
+                    float v17 = v13;
+                    float v16 = v12;
+                    if ((unsigned int)magic((float)((float)((float)((float)a2 / 5.0) - v10) + (float)((float)a4 / 5.0)) + v11) == 1
+                        && (unsigned int)magic((float)((float)((float)(v12 + v12) + v10) + v13) + (float)(v11 * 3.0)) == 8
+                        && (unsigned int)magic((float)((float)(-3.0 * v14) + (float)(v10 + v10)) - v15) == -5)
+                    {
+                        int v18 = (unsigned int)magic(
+                            (float)((float)((float)(4.0 * v10) + (float)(v16 * 4.0)) + (float)(v17 * 3.0))
+                            + (float)(v16 * 4.0)) == 14;
+                        if (v18) {
+                            printf("%02x%02x%02x%02x\n", convert(a2), convert(a3), convert(a4), convert(a5));
+                        }
+                        
+                    }*/
+
+
+
+                    //case 2
+
+                    /*float v19 = (float)a2 / 5.0;
+                    float v20 = (float)a3 / 5.0;
+                    float v21 = (float)a4 / 5.0;
+                    float v22 = (float)a5 / 5.0;
+                    
+
+                    float v23 = v22;
+                    float v24 = v21;
+
+                    float v25 = v21;
+                    float v26 = v22;
+                    
+                    
+                    
+                    if ((unsigned int)magic((float)((float)(v19 + v20) + (float)((float)a4 / 5.0)) + (float)((float)a5 / 5.0)) == 5
+                        && (unsigned int)magic((float)((float)((float)(v20 + v20) + (float)(v19 + v19)) - v21) + (float)(v22 * 3.0)) == 10
+                        && (unsigned int)magic((float)((float)((float)(v19 * -2.0) - v20) + v23) + v24) == 3)
+                    {
+                        int v18 = (unsigned int)magic(
+                            (float)((float)((float)(v20 * 3.0) + (float)(v19 + v19)) + (float)(v25 * 4.0))
+                            + (float)(v26 + v26)) == 11;
+                        if (v18) {
+                            printf("%02x%02x%02x%02x\n", convert(a2), convert(a3), convert(a4), convert(a5));
+                            ++count;
+                        }
+                    }*/
+                    
+
+
+                    //case 3
+
+                    /*float v27 = (float)a2 / 10.0;
+                    float v28 = (float)a3 / 10.0;
+                    int a1 = magic((float)((float)((float)(v28 + v28) + v27) - (float)((float)a4 / 10.0)) + (float)((float)a5 / 10.0));
+                    
+                    if (a1 == 0) {
+                        float v29 = (float)a4 / 10.0;
+                        float v31 = (float)a5 / 10.0;
+                        float v30 = v29 * 3.0;
+
+                        float v32 = v29;
+                        float v33 = v31;
+
+                        v30 = v29 * 3.0;
+                        if ((unsigned int)magic((float)((float)(v27 + v27) - (float)(3.0 * v28)) + (float)(v29 * 3.0)) == 3
+                            && (unsigned int)magic((float)((float)((float)(-4.0 * v27) + v28) + v30) + (float)(v31 + v31)) == -1)
+                        {
+                            int v18 = (unsigned int)magic((float)((float)(v27 + v28) + v33) + v32) == 2;
+                            if (v18) {
+                                printf("%02x%02x%02x%02x\n", convert(a2), convert(a3), convert(a4), convert(a5));
+                                ++count;
+                            }
+                        }
+                    }*/
+                    
+                }
+            }
+        }
+        
+    }
+	return 0;
+}
+```
+Chỉ có case 0 chỉ có 1 trường hợp thỏa là: `3232300b`, còn các case 1, 2 và 3 đều có nhiều trường hợp thỏa mãn điều kiện check license:
+- case 0: 1 trường hợp
+- case 1: 9 trường hợp
+- case 2: 55 trường hợp
+- case 3: 478 trường hợp
+
+Theo quy tắc nhân chúng ta sẽ có tất cả 1 x 9 x 55 x 478 = 236610 license hợp lệ, nhưng chỉ có 1 license có thể decrypt file `db2` thành công 😪😪😪.
+
+Thật may là tác giả sử dụng thuật toán AES ở đây https://github.com/kokke/tiny-AES-c, và thuật toán này này yêu cầu key có 16 bytes mà thôi, nghĩa là chúng ta chỉ cần brute force 2 part đầu là được 😃😃😃 (vì hex(<8 bytes>) = 16 bytes).
+
 
 
 # Extract cookies from Google Chrome browser
@@ -389,7 +803,7 @@ for i in range(108):
 print json.dumps(arr)
 ```
 
-Kết quả:
+Output:
 ```python
 [[90, 100], [130, 20], [90, 40], [210, 60], [220, 60], [130, 50], [270, 90], [60, 40], [220, 40], [110, 40], [220, 20], [130, 30], [20, 110], [90, 20], [20, 60], [80, 120], [170, 110], [190, 110], [250, 60], [60, 60], [40, 90], [50, 110], [180, 110], [90, 90], [110, 130], [200, 50], [210, 130], [120, 100], [210, 20], [40, 110], [90, 60], [60, 30], [290, 130], [70, 120], [110, 120], [180, 60], [40, 50], [190, 130], [290, 90], [150, 30], [210, 40], [240, 60], [170, 30], [260, 60], [110, 50], [130, 60], [170, 100], [120, 50], [90, 30], [250, 110], [80, 20], [70, 110], [150, 40], [270, 130], [160, 40], [20, 100], [170, 50], [60, 20], [20, 120], [150, 130], [150, 100], [270, 100], [30, 40], [200, 20], [200, 60], [290, 110], [80, 100], [130, 40], [270, 110], [250, 100], [110, 100], [30, 130], [90, 50], [220, 130], [180, 130], [200, 40], [180, 20], [150, 20], [30, 20], [170, 120], [40, 130], [20, 30], [70, 30], [190, 100], [60, 50], [150, 90], [200, 30], [300, 100], [120, 30], [110, 90], [250, 90], [150, 120], [90, 120], [180, 90], [110, 110], [230, 130], [250, 130], [150, 60], [140, 100], [40, 120], [130, 110], [40, 20], [30, 60], [90, 110], [30, 90], [150, 50], [150, 110], [90, 130]]
 ```
@@ -420,7 +834,7 @@ for(var i = 0; i < arr.length; i++){
 </body>
 </html>
 ```
-Kết quả: 
+Canvas thu được chứa secret: 
 
 ![Screenshot](/screenshots/snake-game.png?raw=true "Screenshot")
 
