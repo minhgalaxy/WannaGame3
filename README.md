@@ -295,4 +295,131 @@ Secret: `this_challenge_is_created_by_danhph`
 
 # Could you win this game?
 
+Hàm mainLoop:
+```C++
+int __cdecl mainLoop(void (*a1)(void))
+{
+  int result; // eax
+  int v2; // [esp+14h] [ebp-14h]
+  signed int i; // [esp+18h] [ebp-10h]
+  char v4; // [esp+1Fh] [ebp-9h]
+
+  v2 = getcolor();
+  if ( kbhit() == 0 )
+  {
+    a1();
+  }
+  else
+  {
+    v4 = getch();
+    if ( v4 == -32 )
+      v4 = getch();
+    if ( v4 == 32 )
+    {
+      setcolor(0);
+      outtextxy(100, 100, "Game Pause");
+      setcolor(v2);
+      v4 = getch();
+      while ( v4 != 32 )
+      {
+        v4 = getch();
+        delay(0);
+      }
+      setcolor(15);
+      outtextxy(100, 100, "Game Pause");
+      setcolor(v2);
+      delay(0x3E8u);
+    }
+    changeDirecton(v4);
+    mainLoop(a1);
+  }
+  result = iCountFood;
+  if ( iCountFood > 107 )
+  {
+    result = nameFunction;
+    if ( nameFunction == 2 )
+    {
+      outtextxy(460, 200, "You won!!");
+      for ( i = 0; i <= 107; ++i )
+      {
+        food = 10 * (foodA[i] + 2);
+        dword_49E6D4 = 10 * (foodB[i] + 2);
+        drawFood();
+      }
+      delay(3000u);
+      iCountFood = 0;
+      result = setcolor(0);
+    }
+  }
+  return result;
+}
+```
+
+Khi đạt số điểm là 108, game sẽ in ra dòng chữ `You won!!`, đồng thời vẽ hết các tọa độ của `food` lên màn hình thông qua hàm `drawFood`.
+
+```C++
+int drawFood(void)
+{
+  int v0; // ST1C_4
+  int v1; // ST18_4
+
+  v0 = getcolor();
+  v1 = rand() % 14 + 1;
+  setcolor(v1);
+  setfillstyle(1, v1);
+  drawPoint(food, dword_49E6D4, 5);
+  setcolor(v0);
+  return setfillstyle(1, 15);
+}
+```
+Trong phần mềm IDA Pro, chọn File -> Script command..., chọn `Scripting language` là `Python` và thực thi đoạn script sau:
+
+```python
+import json
+
+foodA = 0x0048E040
+foodB = 0x0048E200
+arr = []
+for i in range(108):
+    food = 10 * (Dword(foodA + i * 4))
+    x = 10 * (Dword(foodB + i * 4))
+    arr.append([food, x])
+print json.dumps(arr)
+```
+
+Kết quả:
+```python
+[[90, 100], [130, 20], [90, 40], [210, 60], [220, 60], [130, 50], [270, 90], [60, 40], [220, 40], [110, 40], [220, 20], [130, 30], [20, 110], [90, 20], [20, 60], [80, 120], [170, 110], [190, 110], [250, 60], [60, 60], [40, 90], [50, 110], [180, 110], [90, 90], [110, 130], [200, 50], [210, 130], [120, 100], [210, 20], [40, 110], [90, 60], [60, 30], [290, 130], [70, 120], [110, 120], [180, 60], [40, 50], [190, 130], [290, 90], [150, 30], [210, 40], [240, 60], [170, 30], [260, 60], [110, 50], [130, 60], [170, 100], [120, 50], [90, 30], [250, 110], [80, 20], [70, 110], [150, 40], [270, 130], [160, 40], [20, 100], [170, 50], [60, 20], [20, 120], [150, 130], [150, 100], [270, 100], [30, 40], [200, 20], [200, 60], [290, 110], [80, 100], [130, 40], [270, 110], [250, 100], [110, 100], [30, 130], [90, 50], [220, 130], [180, 130], [200, 40], [180, 20], [150, 20], [30, 20], [170, 120], [40, 130], [20, 30], [70, 30], [190, 100], [60, 50], [150, 90], [200, 30], [300, 100], [120, 30], [110, 90], [250, 90], [150, 120], [90, 120], [180, 90], [110, 110], [230, 130], [250, 130], [150, 60], [140, 100], [40, 120], [130, 110], [40, 20], [30, 60], [90, 110], [30, 90], [150, 50], [150, 110], [90, 130]]
+```
+Lên trang https://www.w3schools.com/graphics/tryit.asp?filename=trycanvas_draw và dán code này vào:
+
+```html
+<!DOCTYPE html>
+<html>
+<body>
+
+<canvas id="myCanvas" width="320" height="160"
+style="border:1px solid #c3c3c3;">
+Your browser does not support the canvas element.
+</canvas>
+
+<script>
+var arr = [[90, 100], [130, 20], [90, 40], [210, 60], [220, 60], [130, 50], [270, 90], [60, 40], [220, 40], [110, 40], [220, 20], [130, 30], [20, 110], [90, 20], [20, 60], [80, 120], [170, 110], [190, 110], [250, 60], [60, 60], [40, 90], [50, 110], [180, 110], [90, 90], [110, 130], [200, 50], [210, 130], [120, 100], [210, 20], [40, 110], [90, 60], [60, 30], [290, 130], [70, 120], [110, 120], [180, 60], [40, 50], [190, 130], [290, 90], [150, 30], [210, 40], [240, 60], [170, 30], [260, 60], [110, 50], [130, 60], [170, 100], [120, 50], [90, 30], [250, 110], [80, 20], [70, 110], [150, 40], [270, 130], [160, 40], [20, 100], [170, 50], [60, 20], [20, 120], [150, 130], [150, 100], [270, 100], [30, 40], [200, 20], [200, 60], [290, 110], [80, 100], [130, 40], [270, 110], [250, 100], [110, 100], [30, 130], [90, 50], [220, 130], [180, 130], [200, 40], [180, 20], [150, 20], [30, 20], [170, 120], [40, 130], [20, 30], [70, 30], [190, 100], [60, 50], [150, 90], [200, 30], [300, 100], [120, 30], [110, 90], [250, 90], [150, 120], [90, 120], [180, 90], [110, 110], [230, 130], [250, 130], [150, 60], [140, 100], [40, 120], [130, 110], [40, 20], [30, 60], [90, 110], [30, 90], [150, 50], [150, 110], [90, 130]];
+var canvas = document.getElementById("myCanvas");
+var ctx = canvas.getContext("2d");
+ctx.fillStyle = "#000000";
+for(var i = 0; i < arr.length; i++){
+	var x = arr[i][0];
+    var y = arr[i][1];
+    ctx.fillRect(x, y, 10, 10);
+}
+</script>
+
+</body>
+</html>
+```
+Kết quả: 
+
+![Screenshot](/screenshots/snake-game.png?raw=true "Screenshot")
+
 # AHIHI Descrypt
